@@ -3,7 +3,7 @@
 
 $modx->error->reset();
 $corePath = $modx->getOption('hybridauth.core_path','',MODX_CORE_PATH . 'components/hybridauth/model/hybridauth/');
-if (!$modx->loadClass('hybridauth', $corePath, false, true)) {
+if (!$modx->loadClass('hybridauth', $corePath."model/hybridauth/", false, true)) {
     return;
 }
 $HybridAuth = new HybridAuth($modx, $scriptProperties);
