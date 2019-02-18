@@ -18,8 +18,8 @@ class HybridAuth
     {
         $this->modx =& $modx;
 
-        $corePath = MODX_CORE_PATH . 'components/hybridauth/';
-        $assetsUrl = MODX_ASSETS_URL . 'components/hybridauth/';
+        $corePath = $this->modx->getOption('hybridauth.core_path','',MODX_CORE_PATH . 'components/hybridauth/');
+        $assetsUrl = $this->modx->getOption('hybridauth.assets_url','',MODX_ASSETS_URL . 'components/hybridauth/');
         $this->modx->lexicon->load('hybridauth:default', 'core:user');
 
         $this->config = array_merge([
@@ -245,6 +245,9 @@ class HybridAuth
                         : '',
                     'zip' => !empty($profile['zip'])
                         ? $profile['zip']
+                        : '',
+                    'data' => !empty($profile['data'])
+                        ? $profile['data']
                         : '',
                     'active' => 1,
                     'provider' => $profile,

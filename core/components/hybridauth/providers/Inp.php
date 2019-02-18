@@ -10,9 +10,9 @@ use Hybridauth\Data;
 
 class Inp extends OAuth2
 {
-    protected $apiBaseUrl = 'http://api.inp.local:8080/';
-    protected $authorizeUrl = 'http://inp.local:8080/auth.html';
-    protected $accessTokenUrl = 'http://api.inp.local:8080/tokens.json';
+    protected $apiBaseUrl = 'https://api.italianonprofit.it/';
+    protected $authorizeUrl = 'https://italianonprofit.it/auth.html';
+    protected $accessTokenUrl = 'https://api.italianonprofit.it/tokens.json';
 
     /**
      * @return bool|Profile
@@ -40,6 +40,7 @@ class Inp extends OAuth2
         $userProfile->identifier = $data->get('email');
         $userProfile->email = $data->get('email');
         $userProfile->displayName = $data->get('fullname');
+        $userProfile->data = $data->toArray();
 
         return $userProfile;
     }
