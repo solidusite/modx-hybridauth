@@ -22,7 +22,7 @@ switch ($modx->event->name) {
                 ? $_SESSION['HybridAuth'][$modx->context->key]
                 : array();
 
-            $path = MODX_CORE_PATH . 'components/hybridauth/model/hybridauth/';
+            $path = $modx->getOption('hybridauth.core_path','',MODX_CORE_PATH . 'components/hybridauth/model/hybridauth/');
             /** @var HybridAuth $HybridAuth */
             if ($HybridAuth = $modx->getService('HybridAuth', 'HybridAuth', $path, $config)) {
                 if (!empty($_REQUEST['hauth_action'])) {
