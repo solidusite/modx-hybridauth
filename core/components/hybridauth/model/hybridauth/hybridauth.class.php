@@ -246,6 +246,9 @@ class HybridAuth
                     'zip' => !empty($profile['zip'])
                         ? $profile['zip']
                         : '',
+                    'data' => !empty($profile['data'])
+                        ? $profile['data']
+                        : '',
                     'active' => 1,
                     'provider' => $profile,
                     'groups' => $this->config['groups'],
