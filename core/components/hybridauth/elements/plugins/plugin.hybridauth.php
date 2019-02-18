@@ -21,7 +21,7 @@ switch ($modx->event->name) {
                 ? $_SESSION['HybridAuth'][$modx->context->key]
                 : array();
 
-            $path = $modx->getOption('hybridauth.core_path','',MODX_CORE_PATH . 'components/hybridauth/model/hybridauth/')."model/hybridauth/";
+            $path = $modx->getOption('hybridauth.core_path','',MODX_CORE_PATH . 'components/hybridauth/')."model/hybridauth/";
             /** @var HybridAuth $HybridAuth */
             if ($HybridAuth = $modx->getService('HybridAuth', 'HybridAuth', $path, $config)) {
                 if (!empty($_REQUEST['hauth_action'])) {
@@ -62,7 +62,7 @@ switch ($modx->event->name) {
         if (!isset($user) || $user->get('id') < 1) {
             return;
         }
-        $path = MODX_CORE_PATH . 'components/hybridauth/model/hybridauth/';
+        $path = $modx->getOption('hybridauth.core_path','',MODX_CORE_PATH . 'components/hybridauth/')."model/hybridauth/";
         if ($HybridAuth = $modx->getService('HybridAuth', 'HybridAuth', $path)) {
             $HybridAuth->regManagerTab($modx->controller, $user);
         }
