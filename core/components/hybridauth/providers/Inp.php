@@ -11,7 +11,7 @@ use Hybridauth\Data;
 class Inp extends OAuth2
 {
     protected $apiBaseUrl = 'http://api.nonprofititalia.it/';
-    protected $authorizeUrl = 'http://local:8080/auth.html';
+    protected $authorizeUrl = 'http://nonprofititalia.it/auth.html';
     protected $accessTokenUrl = 'http://api.nonprofititalia.it/tokens.json';
 
     /**
