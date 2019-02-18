@@ -101,7 +101,8 @@ class HybridAuth
     public function loadHybridAuth()
     {
         if (!class_exists('OAuth2')) {
-            require_once MODX_CORE_PATH . 'components/hybridauth/vendor/autoload.php';
+            $corePath = $this->modx->getOption('hybridauth.core_path','',MODX_CORE_PATH . 'components/hybridauth/');
+            require_once $corePath . 'vendor/autoload.php';
         }
 
         if (!empty($this->config['providers'])) {
