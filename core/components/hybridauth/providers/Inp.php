@@ -40,6 +40,8 @@ class Inp extends OAuth2
         $userProfile->identifier = $data->get('email');
         $userProfile->email = $data->get('email');
         $userProfile->displayName = $data->get('fullname');
+        $userProfile->firstName = $data->get('name');
+        $userProfile->lastName = $data->get('surname');
         $userProfile->data = $data->toArray();
 
         return $userProfile;
