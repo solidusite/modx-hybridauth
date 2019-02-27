@@ -196,11 +196,38 @@ class HybridAuth
                     );
                     $_SESSION['HybridAuth']['error'] = $msg;
                 }
+            } else if(!empty($profile['emailVerified']) || !empty($profile['email'])){
+                $email = !empty($profile['emailVerified'])
+                    ? $profile['emailVerified']
+                    : $profile['email'];
+                $userProfile = $this->modx->getObject('modUserProfile',array(
+                    'email'=>$email
+                ));
+                if($userProfile){
+                    $uid = $userProfile->internalKey;
+                    $profile['internalKey'] = $uid;
+
+                    $response = $this->runProcessor('web/service/create', $profile);
+                    if ($response->isError()) {
+                        $msg = implode(', ', $response->getAllErrors());
+                        $this->modx->log(modX::LOG_LEVEL_ERROR,
+                            '[HybridAuth] unable to save service profile for user ' . $uid . '. Message: ' . $msg
+                        );
+                        $_SESSION['HybridAuth']['error'] = $msg;
+                    }else{
+                        $login_data = [
+                            'username' => $response->response['object']['username'],
+                            'password' => md5(rand()),
+                            'rememberme' => $this->config['rememberme'],
+                        ];
+                    }
+
+                }
             } else {
                 // Create a new user and add this record to him
-                $username = !empty($profile['identifier']) ?
-                    trim($profile['identifier'])
-                    : md5(rand(8, 10));
+                $username = !empty($profile['emailVerified'])
+                    ? $profile['emailVerified']
+                    : $profile['email'];
                 if ($exists = $this->modx->getCount('modUser', ['username' => $username])) {
                     for ($i = 1; $i <= 10; $i++) {
                         $tmp = $username . $i;
