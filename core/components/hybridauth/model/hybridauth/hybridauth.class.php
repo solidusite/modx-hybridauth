@@ -249,7 +249,6 @@ class HybridAuth
 
                 }else{
                     // Create a new user and add this record to him
-                    $this->modx->log(1,"Creo User".print_r($profile,1));
                     if ($exists = $this->modx->getCount('modUser', ['username' => $username])) {
                         for ($i = 1; $i <= 10; $i++) {
                             $tmp = $username . $i;
