@@ -309,7 +309,7 @@ class HybridAuth
                     if (!$this->modx->getOption('ha.register_users', null, true)) {
                         $_SESSION['HybridAuth']['error'] = $this->modx->lexicon('ha_register_disabled');
                     } else {
-                        $response = $this->modx->runProcessor('web/ajaxregiter', $arr,array(
+                        $response = $this->modx->runProcessor('web/ajaxregister', $arr,array(
                             'processors_path'=>MODX_CORE_PATH."components/inp/processors/"
                         ));
                         if ($response->isError()) {
