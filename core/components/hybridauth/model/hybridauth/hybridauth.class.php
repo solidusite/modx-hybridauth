@@ -12,6 +12,8 @@ class HybridAuth
     public $adapters = [];
     /** @var array $initialized */
     public $initialized = [];
+    /** @var bool $profileComplete */
+    public $profileComplete;
 
 
     function __construct(modX &$modx, array $config = [])
@@ -143,6 +145,19 @@ class HybridAuth
         $_SESSION['HA'] = [];
     }
 
+    /**
+     * @param modUserProfile $profile
+     * @return bool
+     */
+    public function checkProfileStatus(modUserProfile $profile){
+        $ext = $profile->get('extended');
+        if(empty($ext['nome']) || empty($ext['cognome']) || empty($ext['lavoro_presso'])){
+            $this->profileComplete = false;
+            return false;
+        }
+        $this->profileComplete = true;
+        return true;
+    }
 
     /**
      * Checks and login user. Also creates/updated user services profiles
@@ -410,8 +425,16 @@ class HybridAuth
         $url = '';
         if ($action == 'login' && !empty($this->config['loginResourceId'])) {
             /** @var modResource $resource */
-            if ($resource = $this->modx->getObject('modResource', (int)$this->config['loginResourceId'])) {
-                $url = $this->modx->makeUrl($resource->id, $resource->context_key, '', 'full');
+            if($this->profileComplete){
+                if(!empty($_REQUEST['source_url'])){
+                    $url = $_REQUEST['source_url'];
+                }else{
+                    if ($resource = $this->modx->getObject('modResource', (int)$this->config['loginResourceId'])) {
+                        $url = $this->modx->makeUrl($resource->id, $resource->context_key, '', 'full');
+                    }
+                }
+            }else{
+                // TODO link a update profile
             }
         } elseif ($action == 'logout' && !empty($this->config['logoutResourceId'])) {
             /** @var modResource $resource */
