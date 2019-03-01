@@ -17,6 +17,9 @@ switch ($modx->event->name) {
         }
 
         if (!empty($_REQUEST['hauth_action']) || !empty($_REQUEST['hauth_done'])) {
+
+            if(!empty($_REQUEST['redirect'])) $_SESSION['HybridAuth'][$modx->context->key]['redirect'] = $_REQUEST['redirect'];
+
             $config = !empty($_SESSION['HybridAuth'][$modx->context->key])
                 ? $_SESSION['HybridAuth'][$modx->context->key]
                 : array();
