@@ -39,7 +39,7 @@ class HybridAuth
             'addContexts' => '',
             'loginResourceId' => 0,
             'logoutResourceId' => 0,
-            'redirect' => $this->modx->getOption('redirect',$this->modx->getOption('redirect',$_REQUEST)),
+            'redirect' => $this->modx->getOption('redirect','',null),
             'providers' => '',
         ], $config);
 
