@@ -13,7 +13,7 @@ class HybridAuth
     /** @var array $initialized */
     public $initialized = [];
     /** @var bool $profileComplete */
-    public $profileComplete;
+    public $profileComplete = false;
 
 
     function __construct(modX &$modx, array $config = [])
@@ -149,7 +149,10 @@ class HybridAuth
      * @param modUserProfile $profile
      * @return bool
      */
-    public function checkProfileStatus(modUserProfile $profile){
+    public function checkProfileStatus($uid){
+        $profile = $this->modx->getObject('modUserProfile',array(
+            'internalKey'=>$uid
+        ));
         $ext = $profile->get('extended');
         if(empty($ext['nome']) || empty($ext['cognome']) || empty($ext['lavoro_presso'])){
             $this->profileComplete = false;
@@ -211,6 +214,7 @@ class HybridAuth
                         '[HybridAuth] unable to save service profile for user ' . $uid . '. Message: ' . $msg
                     );
                     $_SESSION['HybridAuth']['error'] = $msg;
+                    $this->checkProfileStatus($uid);
                 }
             } else if(!empty($profile['emailVerified']) || !empty($profile['email'])){
                 $email = !empty($profile['emailVerified'])
@@ -222,6 +226,7 @@ class HybridAuth
                 if($userProfile){
                     $uid = $userProfile->internalKey;
                     $profile['internalKey'] = $uid;
+                    $this->checkProfileStatus($uid);
 
                     $response = $this->runProcessor('web/service/create', $profile);
                     if ($response->isError()) {
@@ -312,6 +317,8 @@ class HybridAuth
                         ];
                         $uid = $response->response['object']['id'];
                         $profile['internalKey'] = $uid;
+                        $this->checkProfileStatus($uid);
+
                         $response = $this->runProcessor('web/service/create', $profile);
                         if ($response->isError()) {
                             $msg = implode(', ', $response->getAllErrors());
@@ -321,6 +328,7 @@ class HybridAuth
                             $_SESSION['HybridAuth']['error'] = $msg;
                         }
                     }
+
                 }
             }
         } else {
@@ -340,6 +348,7 @@ class HybridAuth
                 ];
                 $profile['id'] = $service->get('id');
                 $profile['internalKey'] = $uid;
+                $this->checkProfileStatus($uid);
                 $response = $this->runProcessor('web/service/update', $profile);
                 if ($response->isError()) {
                     $msg = implode(', ', $response->getAllErrors());
