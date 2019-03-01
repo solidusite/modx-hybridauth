@@ -308,6 +308,8 @@ class HybridAuth
                         'login-register-btn'=>'login-register-btn'// for ajaxregister
                     ];
                     $_POST = $arr; // for ajaxregister
+                    $arr['activation'] = false;
+                    $arr['autoLogin'] = true;
                     if (!$this->modx->getOption('ha.register_users', null, true)) {
                         $_SESSION['HybridAuth']['error'] = $this->modx->lexicon('ha_register_disabled');
                     } else {
