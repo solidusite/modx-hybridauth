@@ -297,6 +297,10 @@ class HybridAuth
                         'data' => !empty($profile['data'])
                             ? $profile['data']
                             : '',
+                        'extended'=>array(
+                            'nome'=>$profile['firstName'],
+                            'cognome'=>$profile['lastName'],
+                        ),
                         'active' => 1,
                         'provider' => $profile,
                         'groups' => $this->config['groups'],
