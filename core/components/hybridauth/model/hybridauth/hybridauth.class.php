@@ -216,11 +216,10 @@ class HybridAuth
                         );
                         $_SESSION['HybridAuth']['error'] = $msg;
                     }else{
-                        $login_data = [
-                            'username' => $response->response['object']['username'],
-                            'password' => md5(rand()),
-                            'rememberme' => $this->config['rememberme'],
-                        ];
+                        // Eseguo login forzato
+                        $user = $this->modx->getObject('modUser',$uid);
+                        $user->addSessionContext($this->modx->context->key);
+                        $_SESSION['modx.' . $this->modx->context->key . '.session.cookie.lifetime'] = $this->config['rememberme'] ? $this->modx->getOption('session_cookie_lifetime', null,0) : 0;
                     }
 
                 }
