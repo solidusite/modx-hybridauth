@@ -39,6 +39,7 @@ class HybridAuth
             'addContexts' => '',
             'loginResourceId' => 0,
             'logoutResourceId' => 0,
+            'updateProfileResourceId' => 0,
             'redirect' => $this->modx->getOption('redirect','',null),
             'providers' => '',
         ], $config);
@@ -452,8 +453,7 @@ class HybridAuth
                     }
                 }
             }else{
-                // TODO link a update profile
-                if ($resource = $this->modx->getObject('modResource', (int)$this->config['loginResourceId'])) {
+                if (!empty($this->config['updateProfileResourceId']) && ($resource = $this->modx->getObject('modResource', (int)$this->config['updateProfileResourceId']))) {
                     $params = array();
                     if(!empty($this->config['redirect'])) $params['redirect'] = $this->config['redirect'];
                     $url = $this->modx->makeUrl($resource->id, $resource->context_key, $params, 'full');
