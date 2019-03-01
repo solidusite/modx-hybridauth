@@ -83,10 +83,17 @@ class haUserCreateProcessor extends modUserCreateProcessor
         $this->profile->fromArray($this->getProperties());
         $this->profile->set('blocked', $this->getProperty('blocked', false));
         $this->object->addOne($this->profile, 'Profile');
-        $this->profile->set('extended',array_merge($this->getProperty('data'),array(
+        $data = $this->getProperty('data');
+        $ext = array(
             'nome'=>$this->getProperty('firstName'),
             'cognome'=>$this->getProperty('lastName'),
-        )));
+        );
+        if(is_array($data)){
+            $ext = array_merge($ext,$data);
+        }else{
+            $ext['data'] = $data;
+        }
+        $this->profile->set('extended',$ext);
         return $this->profile;
     }
 
