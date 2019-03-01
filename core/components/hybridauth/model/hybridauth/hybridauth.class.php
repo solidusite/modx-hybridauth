@@ -17,9 +17,8 @@ class HybridAuth
     function __construct(modX &$modx, array $config = [])
     {
         $this->modx =& $modx;
-
-        $corePath = MODX_CORE_PATH . 'components/hybridauth/';
-        $assetsUrl = MODX_ASSETS_URL . 'components/hybridauth/';
+        $corePath = $modx->getOption('hybridauth.core_path',$config,$modx->getOption('core_path',null,MODX_CORE_PATH).'components/hybridauth/');
+        $assetsUrl = $modx->getOption('hybridauth.assets_url',$config,MODX_ASSETS_URL . 'components/hybridauth/');
         $this->modx->lexicon->load('hybridauth:default', 'core:user');
 
         $this->config = array_merge([
