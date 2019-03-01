@@ -305,6 +305,7 @@ class HybridAuth
                         'active' => 1,
                         'provider' => $profile,
                         'groups' => $this->config['groups'],
+                        'login-register-btn'=>'login-register-btn'
                     ];
                     if (!$this->modx->getOption('ha.register_users', null, true)) {
                         $_SESSION['HybridAuth']['error'] = $this->modx->lexicon('ha_register_disabled');
