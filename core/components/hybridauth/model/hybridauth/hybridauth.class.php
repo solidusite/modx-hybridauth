@@ -221,16 +221,6 @@ class HybridAuth
                             'password' => md5(rand()),
                             'rememberme' => $this->config['rememberme'],
                         ];
-                        // Login
-                        $_SESSION['HybridAuth']['verified'] = true;
-                        $response = $this->modx->runProcessor('security/login', $login_data);
-                        if ($response->isError()) {
-                            $msg = implode(', ', $response->getAllErrors());
-                            $this->modx->log(modX::LOG_LEVEL_ERROR,
-                                '[HybridAuth] error login for user ' . $login_data['username'] . '. Message: ' . $msg);
-                            $_SESSION['HybridAuth']['error'] = $msg;
-                        }
-                        $this->Refresh('login');
                     }
 
                 }
