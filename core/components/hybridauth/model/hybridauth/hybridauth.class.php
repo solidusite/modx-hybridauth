@@ -454,7 +454,9 @@ class HybridAuth
             }else{
                 // TODO link a update profile
                 if ($resource = $this->modx->getObject('modResource', (int)$this->config['loginResourceId'])) {
-                    $url = $this->modx->makeUrl($resource->id, $resource->context_key, '', 'full');
+                    $params = array();
+                    if(!empty($this->config['redirect'])) $params['redirect'] = $this->config['redirect'];
+                    $url = $this->modx->makeUrl($resource->id, $resource->context_key, $params, 'full');
                 }
             }
         } elseif ($action == 'logout' && !empty($this->config['logoutResourceId'])) {
