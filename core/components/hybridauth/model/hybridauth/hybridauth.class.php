@@ -245,6 +245,7 @@ class HybridAuth
                 }
             } else {
                 // Create a new user and add this record to him
+                $this->modx->log(1,"Creo User".print_r($profile,1));
                 $username = !empty($profile['emailVerified'])
                     ? $profile['emailVerified']
                     : $profile['email'];
@@ -449,6 +450,9 @@ class HybridAuth
                 }
             }else{
                 // TODO link a update profile
+                if ($resource = $this->modx->getObject('modResource', (int)$this->config['loginResourceId'])) {
+                    $url = $this->modx->makeUrl($resource->id, $resource->context_key, '', 'full');
+                }
             }
         } elseif ($action == 'logout' && !empty($this->config['logoutResourceId'])) {
             /** @var modResource $resource */
