@@ -39,6 +39,7 @@ class HybridAuth
             'addContexts' => '',
             'loginResourceId' => 0,
             'logoutResourceId' => 0,
+            'redirect' => $this->modx->getOption('redirect',$this->modx->getOption('redirect',$_REQUEST)),
             'providers' => '',
         ], $config);
 
@@ -443,8 +444,8 @@ class HybridAuth
         if ($action == 'login' && !empty($this->config['loginResourceId'])) {
             /** @var modResource $resource */
             if($this->profileComplete){
-                if(!empty($_REQUEST['source_url'])){
-                    $url = $_REQUEST['source_url'];
+                if(!empty($this->config['redirect'])){
+                    $url = $this->config['redirect'];
                 }else{
                     if ($resource = $this->modx->getObject('modResource', (int)$this->config['loginResourceId'])) {
                         $url = $this->modx->makeUrl($resource->id, $resource->context_key, '', 'full');
