@@ -29,8 +29,6 @@ class haUserCreateProcessor extends modUserCreateProcessor
         if (!$this->getProperty('email')) {
             $this->setProperty('email', 'emptyemail@nomail.com');
         }
-        $this->modx->log(1,"Creo User".print_r($this->getProperties(),1));
-
 
         return parent::beforeSet();
     }
