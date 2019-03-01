@@ -17,8 +17,9 @@ class HybridAuth
     function __construct(modX &$modx, array $config = [])
     {
         $this->modx =& $modx;
-        $corePath = $modx->getOption('hybridauth.core_path',$config,$modx->getOption('core_path',null,MODX_CORE_PATH).'components/hybridauth/');
-        $assetsUrl = $modx->getOption('hybridauth.assets_url',$config,MODX_ASSETS_URL . 'components/hybridauth/');
+
+        $corePath = $this->modx->getOption('hybridauth.core_path','',MODX_CORE_PATH . 'components/hybridauth/');
+        $assetsUrl = $this->modx->getOption('hybridauth.assets_url','',MODX_ASSETS_URL . 'components/hybridauth/');
         $this->modx->lexicon->load('hybridauth:default', 'core:user');
 
         $this->config = array_merge([
@@ -100,7 +101,8 @@ class HybridAuth
     public function loadHybridAuth()
     {
         if (!class_exists('OAuth2')) {
-            require_once MODX_CORE_PATH . 'components/hybridauth/vendor/autoload.php';
+            $corePath = $this->modx->getOption('hybridauth.core_path','',MODX_CORE_PATH . 'components/hybridauth/');
+            require_once $corePath . 'vendor/autoload.php';
         }
 
         if (!empty($this->config['providers'])) {
@@ -280,6 +282,9 @@ class HybridAuth
                         : '',
                     'zip' => !empty($profile['zip'])
                         ? $profile['zip']
+                        : '',
+                    'data' => !empty($profile['data'])
+                        ? $profile['data']
                         : '',
                     'active' => 1,
                     'provider' => $profile,
