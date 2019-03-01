@@ -248,6 +248,11 @@ class HybridAuth
                 $username = !empty($profile['emailVerified'])
                     ? $profile['emailVerified']
                     : $profile['email'];
+                if(empty($username)){
+                    $this->modx->log(modX::LOG_LEVEL_ERROR,
+                        '[HybridAuth] email not provided');
+                    $_SESSION['HybridAuth']['error'] = "email not provided";
+                }
                 if ($exists = $this->modx->getCount('modUser', ['username' => $username])) {
                     for ($i = 1; $i <= 10; $i++) {
                         $tmp = $username . $i;
