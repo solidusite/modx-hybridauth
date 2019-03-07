@@ -210,13 +210,13 @@ class HybridAuth
                 $profile['internalKey'] = $uid;
 
                 $response = $this->runProcessor('web/service/create', $profile);
+                $this->checkProfileStatus($uid);
                 if ($response->isError()) {
                     $msg = implode(', ', $response->getAllErrors());
                     $this->modx->log(modX::LOG_LEVEL_ERROR,
                         '[HybridAuth] unable to save service profile for user ' . $uid . '. Message: ' . $msg
                     );
                     $_SESSION['HybridAuth']['error'] = $msg;
-                    $this->checkProfileStatus($uid);
                 }
             } else {
                 $username = !empty($profile['emailVerified'])
