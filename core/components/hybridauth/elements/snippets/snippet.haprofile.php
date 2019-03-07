@@ -92,6 +92,8 @@ $data = array_merge(
         'nome'=>$extended['nome'],
         'cognome'=>$extended['cognome'],
         'lavoro_presso'=>$extended['lavoro_presso'],
+        'lavoro_more'=>$extended['lavoro_more'],
+        'realtà'=>$extended['realtà'],
         'redirect'=>$_REQUEST['redirect']
     )
 );
