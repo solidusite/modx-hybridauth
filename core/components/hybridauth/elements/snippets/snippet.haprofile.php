@@ -92,6 +92,7 @@ $data = array_merge(
         'nome'=>$extended['nome'],
         'cognome'=>$extended['cognome'],
         'lavoro_presso'=>$extended['lavoro_presso'],
+        'redirect'=>$_REQUEST['redirect']
     )
 );
 
