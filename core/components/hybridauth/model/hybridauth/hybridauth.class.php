@@ -247,6 +247,9 @@ class HybridAuth
                         $user = $this->modx->getObject('modUser',$uid);
                         $user->addSessionContext($this->modx->context->key);
                         $_SESSION['modx.' . $this->modx->context->key . '.session.cookie.lifetime'] = $this->config['rememberme'] ? $this->modx->getOption('session_cookie_lifetime', null,0) : 0;
+                        if(!$user->isMember(array('User'))){
+                            $user->joinGroup('User');
+                        }
                     }
 
                 }else{
