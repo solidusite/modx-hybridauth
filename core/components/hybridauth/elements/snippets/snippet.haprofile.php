@@ -94,7 +94,7 @@ $data = array_merge(
         'lavoro_presso'=>$extended['lavoro_presso'],
         'lavoro_more'=>$extended['lavoro_more'],
         'realtà'=>$extended['realtà'],
-        'redirect'=>$_REQUEST['redirect']
+        'redirect'=>$modx->getOption('redirect',$_REQUEST,$modx->makeUrl($modx->getOption('inp.dashboardPageID'),'web','','full'))
     )
 );
 
