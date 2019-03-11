@@ -544,6 +544,7 @@ class HybridAuth
             }
         }
 
+        $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://".$_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"];
         foreach ($this->adapters as $provider => $adapter) {
             $pls = [
                 'login_url' => $url . 'login',
@@ -551,6 +552,7 @@ class HybridAuth
                 'unbind_url' => $url . 'unbind',
                 'provider' => strtolower($provider),
                 'title' => $provider,
+                'source_url'=>rawurlencode($actual_link)
             ];
 
             $output .= !in_array($pls['provider'], $active)

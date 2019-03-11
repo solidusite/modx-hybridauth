@@ -18,13 +18,18 @@ switch ($modx->event->name) {
 
         if (!empty($_REQUEST['hauth_action']) || !empty($_REQUEST['hauth_done'])) {
 
-            if(!empty($_REQUEST['redirect'])) $_SESSION['HybridAuth'][$modx->context->key]['redirect'] = $modx->getOption('source_url',$_REQUEST,$modx->getOption('redirect',$_REQUEST));
-            else if(isset($_SESSION['HybridAuth'][$modx->context->key]['redirect'])) unset($_SESSION['HybridAuth'][$modx->context->key]['redirect']);
+            $redirect_url = $modx->getOption('source_url',$_REQUEST,$modx->getOption('redirect',$_REQUEST));
+            //$modx->log(1,print_r($_REQUEST,1));
+
+            if(!empty($redirect_url) && strpos($redirect_url,"service=logout") === false) $_SESSION['HybridAuth'][$modx->context->key]['redirect'] = $redirect_url;
+            //else if(isset($_SESSION['HybridAuth'][$modx->context->key]['redirect'])) unset($_SESSION['HybridAuth'][$modx->context->key]['redirect']);
 
             $config = !empty($_SESSION['HybridAuth'][$modx->context->key])
                 ? $_SESSION['HybridAuth'][$modx->context->key]
                 : array();
 
+            //$modx->log(1,print_r($_SESSION['HybridAuth'][$modx->context->key],1));
+            //$modx->log(1,"config ".print_r($config,1));
             $path = $modx->getOption('hybridauth.core_path','',MODX_CORE_PATH . 'components/hybridauth/')."model/hybridauth/";
             /** @var HybridAuth $HybridAuth */
             if ($HybridAuth = $modx->getService('HybridAuth', 'HybridAuth', $path, $config)) {
