@@ -12,6 +12,8 @@ class HybridAuth
     public $adapters = [];
     /** @var array $initialized */
     public $initialized = [];
+    /** @var bool $profileComplete */
+    public $profileComplete = false;
 
 
     function __construct(modX &$modx, array $config = [])
@@ -37,6 +39,8 @@ class HybridAuth
             'addContexts' => '',
             'loginResourceId' => 0,
             'logoutResourceId' => 0,
+            'updateProfileResourceId' => 0,
+            'redirect' => $this->modx->getOption('redirect','',null),
             'providers' => '',
         ], $config);
 
@@ -143,6 +147,22 @@ class HybridAuth
         $_SESSION['HA'] = [];
     }
 
+    /**
+     * @param modUserProfile $profile
+     * @return bool
+     */
+    public function checkProfileStatus($uid){
+        $profile = $this->modx->getObject('modUserProfile',array(
+            'internalKey'=>$uid
+        ));
+        $ext = $profile->get('extended');
+        if(empty($ext['nome']) || empty($ext['cognome'])){
+            $this->profileComplete = false;
+            return false;
+        }
+        $this->profileComplete = true;
+        return true;
+    }
 
     /**
      * Checks and login user. Also creates/updated user services profiles
@@ -196,91 +216,130 @@ class HybridAuth
                         '[HybridAuth] unable to save service profile for user ' . $uid . '. Message: ' . $msg
                     );
                     $_SESSION['HybridAuth']['error'] = $msg;
+                    $this->checkProfileStatus($uid);
                 }
             } else {
-                // Create a new user and add this record to him
-                $username = !empty($profile['identifier']) ?
-                    trim($profile['identifier'])
-                    : md5(rand(8, 10));
-                if ($exists = $this->modx->getCount('modUser', ['username' => $username])) {
-                    for ($i = 1; $i <= 10; $i++) {
-                        $tmp = $username . $i;
-                        if (!$this->modx->getCount('modUser', ['username' => $tmp])) {
-                            $username = $tmp;
-                            break;
-                        }
-                    }
+                $username = !empty($profile['emailVerified'])
+                    ? $profile['emailVerified']
+                    : $profile['email'];
+                if(empty($username)){
+                    $this->modx->log(modX::LOG_LEVEL_ERROR,
+                        '[HybridAuth] email not provided');
+                    $_SESSION['HybridAuth']['error'] = "email not provided";
                 }
-                $arr = [
-                    'username' => $username,
-                    'fullname' => !empty($profile['lastName'])
-                        ? $profile['firstName'] . ' ' . $profile['lastName']
-                        : $profile['firstName'],
-                    'dob' => !empty($profile['birthday']) && !empty($profile['birthmonth']) && !empty($profile['birthyear'])
-                        ? $profile['birthyear'] . '-' . $profile['birthmonth'] . '-' . $profile['birthday']
-                        : '',
-                    'email' => !empty($profile['emailVerified'])
-                        ? $profile['emailVerified']
-                        : $profile['email'],
-                    'photo' => !empty($profile['photoURL'])
-                        ? $profile['photoURL']
-                        : '',
-                    'website' => !empty($profile['webSiteURL'])
-                        ? $profile['webSiteURL']
-                        : '',
-                    'phone' => !empty($profile['phone'])
-                        ? $profile['phone']
-                        : '',
-                    'address' => !empty($profile['address'])
-                        ? $profile['address']
-                        : '',
-                    'country' => !empty($profile['country'])
-                        ? $profile['country']
-                        : '',
-                    'state' => !empty($profile['region'])
-                        ? $profile['region']
-                        : '',
-                    'city' => !empty($profile['city'])
-                        ? $profile['city']
-                        : '',
-                    'zip' => !empty($profile['zip'])
-                        ? $profile['zip']
-                        : '',
-                    'data' => !empty($profile['data'])
-                        ? $profile['data']
-                        : '',
-                    'active' => 1,
-                    'provider' => $profile,
-                    'groups' => $this->config['groups'],
-                ];
-                if (!$this->modx->getOption('ha.register_users', null, true)) {
-                    $_SESSION['HybridAuth']['error'] = $this->modx->lexicon('ha_register_disabled');
-                } else {
-                    $response = $this->runProcessor('web/user/create', $arr);
+                $userProfile = $this->modx->getObject('modUserProfile',array(
+                    'email'=>$username
+                ));
+                if($userProfile){
+                    $uid = $userProfile->internalKey;
+                    $profile['internalKey'] = $uid;
+                    $this->checkProfileStatus($uid);
+
+                    $response = $this->runProcessor('web/service/create', $profile);
                     if ($response->isError()) {
                         $msg = implode(', ', $response->getAllErrors());
                         $this->modx->log(modX::LOG_LEVEL_ERROR,
-                            '[HybridAuth] Unable to create user ' . print_r($arr, 1) . '. Message: ' . $msg
+                            '[HybridAuth] unable to save service profile for user ' . $uid . '. Message: ' . $msg
                         );
                         $_SESSION['HybridAuth']['error'] = $msg;
+                    }else{
+                        // Eseguo login forzato
+                        $user = $this->modx->getObject('modUser',$uid);
+                        $user->addSessionContext($this->modx->context->key);
+                        $_SESSION['modx.' . $this->modx->context->key . '.session.cookie.lifetime'] = $this->config['rememberme'] ? $this->modx->getOption('session_cookie_lifetime', null,0) : 0;
+                    }
+
+                }else{
+                    // Create a new user and add this record to him
+                    if ($exists = $this->modx->getCount('modUser', ['username' => $username])) {
+                        for ($i = 1; $i <= 10; $i++) {
+                            $tmp = $username . $i;
+                            if (!$this->modx->getCount('modUser', ['username' => $tmp])) {
+                                $username = $tmp;
+                                break;
+                            }
+                        }
+                    }
+                    $arr = [
+                        'username' => $username,
+                        'fullname' => !empty($profile['lastName'])
+                            ? $profile['firstName'] . ' ' . $profile['lastName']
+                            : $profile['firstName'],
+                        'dob' => !empty($profile['birthday']) && !empty($profile['birthmonth']) && !empty($profile['birthyear'])
+                            ? $profile['birthyear'] . '-' . $profile['birthmonth'] . '-' . $profile['birthday']
+                            : '',
+                        'email' => !empty($profile['emailVerified'])
+                            ? $profile['emailVerified']
+                            : $profile['email'],
+                        'photo' => !empty($profile['photoURL'])
+                            ? $profile['photoURL']
+                            : '',
+                        'website' => !empty($profile['webSiteURL'])
+                            ? $profile['webSiteURL']
+                            : '',
+                        'phone' => !empty($profile['phone'])
+                            ? $profile['phone']
+                            : '',
+                        'address' => !empty($profile['address'])
+                            ? $profile['address']
+                            : '',
+                        'country' => !empty($profile['country'])
+                            ? $profile['country']
+                            : '',
+                        'state' => !empty($profile['region'])
+                            ? $profile['region']
+                            : '',
+                        'city' => !empty($profile['city'])
+                            ? $profile['city']
+                            : '',
+                        'zip' => !empty($profile['zip'])
+                            ? $profile['zip']
+                            : '',
+                        'data' => !empty($profile['data'])
+                            ? $profile['data']
+                            : '',
+                        'extended'=>array(
+                            'nome'=>$profile['firstName'],
+                            'cognome'=>$profile['lastName'],
+                        ),
+                        'active' => 1,
+                        'provider' => $profile,
+                        'groups' => $this->config['groups'],
+                    ];
+                    if (!$this->modx->getOption('ha.register_users', null, true)) {
+                        $_SESSION['HybridAuth']['error'] = $this->modx->lexicon('ha_register_disabled');
                     } else {
-                        $login_data = [
-                            'username' => $response->response['object']['username'],
-                            'password' => md5(rand()),
-                            'rememberme' => $this->config['rememberme'],
-                        ];
-                        $uid = $response->response['object']['id'];
-                        $profile['internalKey'] = $uid;
-                        $response = $this->runProcessor('web/service/create', $profile);
+                        $response = $this->runProcessor('web/user/create', $arr);
                         if ($response->isError()) {
                             $msg = implode(', ', $response->getAllErrors());
                             $this->modx->log(modX::LOG_LEVEL_ERROR,
-                                '[HybridAuth] unable to save service profile for user ' . $uid . '. Message: ' . $msg
+                                '[HybridAuth] Unable to create user ' . print_r($arr, 1) . '. Message: ' . $msg
                             );
                             $_SESSION['HybridAuth']['error'] = $msg;
+                        } else {
+                            $login_data = [
+                                'username' => $response->response['object']['username'],
+                                'password' => md5(rand()),
+                                'rememberme' => $this->config['rememberme'],
+                            ];
+                            $uid = $response->response['object']['id'];
+                            $profile['internalKey'] = $uid;
+                            $this->checkProfileStatus($uid);
+
+                            $response = $this->runProcessor('web/service/create', $profile);
+                            if ($response->isError()) {
+                                $msg = implode(', ', $response->getAllErrors());
+                                $this->modx->log(modX::LOG_LEVEL_ERROR,
+                                    '[HybridAuth] unable to save service profile for user ' . $uid . '. Message: ' . $msg
+                                );
+                                $_SESSION['HybridAuth']['error'] = $msg;
+                            }
                         }
+
                     }
                 }
+
+
             }
         } else {
             // Find and use connected MODX user
@@ -299,6 +358,7 @@ class HybridAuth
                 ];
                 $profile['id'] = $service->get('id');
                 $profile['internalKey'] = $uid;
+                $this->checkProfileStatus($uid);
                 $response = $this->runProcessor('web/service/update', $profile);
                 if ($response->isError()) {
                     $msg = implode(', ', $response->getAllErrors());
@@ -384,8 +444,20 @@ class HybridAuth
         $url = '';
         if ($action == 'login' && !empty($this->config['loginResourceId'])) {
             /** @var modResource $resource */
-            if ($resource = $this->modx->getObject('modResource', (int)$this->config['loginResourceId'])) {
-                $url = $this->modx->makeUrl($resource->id, $resource->context_key, '', 'full');
+            if($this->profileComplete){
+                if(!empty($this->config['redirect'])){
+                    $url = $this->config['redirect'];
+                }else{
+                    if ($resource = $this->modx->getObject('modResource', (int)$this->config['loginResourceId'])) {
+                        $url = $this->modx->makeUrl($resource->id, $resource->context_key, '', 'full');
+                    }
+                }
+            }else{
+                if (!empty($this->config['updateProfileResourceId']) && ($resource = $this->modx->getObject('modResource', (int)$this->config['updateProfileResourceId']))) {
+                    $params = array();
+                    if(!empty($this->config['redirect'])) $params['redirect'] = $this->config['redirect'];
+                    $url = $this->modx->makeUrl($resource->id, $resource->context_key, $params, 'full');
+                }
             }
         } elseif ($action == 'logout' && !empty($this->config['logoutResourceId'])) {
             /** @var modResource $resource */
