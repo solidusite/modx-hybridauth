@@ -10,9 +10,9 @@ use Hybridauth\Data;
 
 class Inp extends OAuth2
 {
-    protected $apiBaseUrl = 'http://api.inp.local:8080/';
-    protected $authorizeUrl = 'http://inp.local:8080/auth.html';
-    protected $accessTokenUrl = 'http://api.inp.local:8080/tokens.json';
+    protected $apiBaseUrl = 'http://api.inp.lc:8080/';
+    protected $authorizeUrl = 'http://inp.lc:8080/auth.html';
+    protected $accessTokenUrl = 'http://api.inp.lc:8080/tokens.json';
 
     /**
      * @return bool|Profile
